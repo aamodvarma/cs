@@ -1,0 +1,103 @@
+\setcounter{chapter}{6}
+\chapter{Assembly}
+\section{Introduction}
+Before a program in high-level language can be executed, it must be translated into a program in the ISA of the computer on which it is to be executed.
+
+
+\section{Instructions}
+An instruction has four parts, 
+\begin{verbatim}
+    Label    Opcode    Operands    ; Comment
+\end{verbatim}
+
+Where \textt{Label} and \textt{Comment} are optional.
+
+\subsection{Opcodes and Operands}
+Opcodes and Operands are mandatory. Opcode is the name of the instruction and Operands are the things the it is supposed to do it to.
+
+\subsection{Labels}
+Symbolic names used to identify memory locations. Starts with an alphabet but can contain a decimal after. Cannot use Opcodes or Operands as Labels.
+
+Labels could be either, 
+\begin{enumerate}
+    \item Location is a branch of new instruction, eg. WHILE, IF, ELSE
+    \item Location contains as value, eg. LABEL .fill x0001
+\end{enumerate}
+
+
+
+\section{Pseudo-Ops}
+The assembler is a program that takes the "program" and converts it into a program in the ISA. Pseudo-Ops help in this.
+
+\subsection{.ORIG}
+Tells the assembler where in memory to place the LC 3 program. So .ORIG  x3050 will place the first LC-3 ISA instruction in that specified location.
+
+\begin{verbatim}
+    .orig x3000
+
+    .end
+\end{verbatim}
+
+\subsection{.FILL}
+Tells assembler to set aside location and initialize it with the value of the operand (could be either number or label). 
+\begin{verbatim}
+    A .fill 5
+    SIX .fill x0006
+\end{verbatim}
+
+\subsection{.BLKW}
+Tells assembler to set aside some number of sequential memory locations. The number is the operand of the pseudo-op.
+\begin{verbatim}
+    ARRAY .blkw 4
+\end{verbatim}
+
+\subsection{.STRINGZ}
+Tells assembler to in initialize sequence of $n + 1$ memory locations for words. Where $n$ is the word length. 
+
+\begin{verbatim}
+    HELLO .STRINZ "Hello!"
+\end{verbatim}
+
+We have $n + 1$ because the location after $!$ would be null or $x0000$
+
+\subsection{.END}
+Tells assembler that it has reached the end of the program. Doesn't actually exist at the time of execution.
+
+
+\section{Assembly Process}
+\subsection{Two-Pass Process}
+First pass is creating the symbol table. Which is a correspondence of symbolic names with their 16-bit memory addresses. 
+\begin{verbatim}
+    Symbol   Address
+    TEST     x3004
+    ASCII    x300E
+\end{verbatim}
+
+
+The second pass is for generating the machine language program. So using the help of the symbol table it goes through line by line and produces the machine language instruction (in binary)
+
+For LD instruction or instructions that use PCoffset the assembler calculates it using the symbol table. 
+\begin{verbatim}
+.orig x3000
+    LD R0, VALUE
+    HALT
+VALUE .fill 10
+.end
+\end{verbatim}
+Here VALUE is at $3002$ and LD is at 3000. So PCoffset is calculated during the second pass as  $3003 - (3000 + 1) = 2$. This is because  when $LD$ is run the PC is incremented. So label must be not more than +256 or -255 memory locations from the LD instruction itself.
+
+
+
+\section{Execution}
+\subsection{More than One Object File}
+It is possible to have an executable image from more than one object file. We can use, .EXTERNAL to tell the assembler that the absence of a label is not an error. 
+
+\begin{verbatim}
+    .EXTERNAL STARTofFILE
+\end{verbatim}
+
+So it allows references in one module to symbolic locations in another module without a problem. The proper translations are resolved by the linker. At link time, the linker uses the symbol table entry for STARTofFILE in another module to complete the translation of our revised line.
+
+
+
+

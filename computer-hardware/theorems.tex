@@ -1,0 +1,164 @@
+\chapter*{Theorems}
+We start with, 
+
+\begin{theorem}
+If a list, $v_1, \dots, v_m$ spans $V$ then we can shrink it (and keep it spanning), if its not linearly independent.
+\end{theorem}
+
+\begin{theorem}
+    If a list $v_1, \dots, v_m$ is linearly independent, then we can extend it (and it is still linearly independent) if the list is not spanning.
+\end{theorem}
+
+
+\begin{theorem}
+    Length of linearly independent set $\leq$ length of spanning set
+\end{theorem}
+
+\begin{definition}
+    A vector space is finite-dimentional if some list of vectors span the space
+\end{definition}
+
+\begin{definition}
+    A basis is a list of vectors that are linearly independent and spanning
+\end{definition}
+
+
+We prove the following, 
+
+\begin{prop}
+    Every spanning list can be reduced to a basis.
+
+\end{prop}
+
+    \begin{proof}
+        We know from theorem 1 that we can shrink every spanning list and keep it spanning, if its not linearly independent. 
+
+        So given a spanning list, we can remove a vector and have it spanning. 
+
+        We then have two cases, (1) the resultant list is linearly independent or (2) the list is linearly dependent.
+
+        If the list is linearly independent, then we have a spanning list that is lienarly independent which makes it a basis.
+
+        If the list is linearly dependent, then we can shrink it once again and keep it spanning and apply the same cases as above.
+
+        We know that this won't go on until the list is empty because from theorem 3 we know that the length of the spanning set is lowerbounded by the length of linearly independent sets. So there will be a point where our spanning set will be linearly independent. 
+    \end{proof}
+
+
+\begin{prop}
+    Every linearly independent list extends to a basis.
+\end{prop}
+
+    \begin{proof}
+        We know from theorem 2 that we can extend a linearly independent set keeping it linearly independent if the list is not spanning.
+
+        We given a linearly independent list, we can add a vector such that the new list is linearly indendent. We have two cases now (1) It is spanning, (2) It is not spanning.
+
+        If it is spanning, then we have a linearly independent set of vectors that are spanning which forms a basis.
+
+        If it is not spanning, then we can repeat this and extend our list once more keeping it linearly independent.
+
+        Using theorem 3 we know that the length of the set of linearly independent set of vectors is upperbounded by the length of a spanning set. Hence there will come a point where our list of vectors are linearly indpendent and spanning.
+
+        Hence they will form a basis.
+    \end{proof}
+
+\begin{theorem}
+    Every vector space has a basis
+\end{theorem}
+
+    \begin{proof}
+        We know by definition a finite-dimenstional vector space can be spanned by a list of vectors.
+
+        Now from proposition 1 we know that every spanning list can be reduced to a basis.
+
+        Hence the list spanning any finite-dimentional vector space can be reduced to a basis for the vector space.
+    \end{proof}
+
+\begin{theorem}
+    Any two basis of a vector space $V$ have the same length
+\end{theorem}
+
+    \begin{proof}
+        Lets assume that we can have two basis of different lengths.
+
+        Let $a$ and $b$ be the lengths of the basis.
+
+        We know that both the sets are linearly indpendnet and spanning. 
+
+        Without loss of generality assume, $a < b$
+        
+        Using theorem 3 we also know that the length of a linearly independent list is always smaller than or equal to the length of the spanning list.
+
+        Now, $a$ is a spanning list because it is a basis and  $b$ is a linearly independent list as it is a basis.
+
+        So this means that the length of a spanning list is smaller than the length of a linearly independent list.
+
+        But this contradicts theorem 3, hence our assumption must be wrong and the length of the basis must be equal.
+    \end{proof}
+
+\begin{definition}
+    The length of any basis V is the dimension of V denoyed by $\dim V$
+\end{definition}
+
+
+
+\begin{prop}
+    Any linearly independent list of length $\dim V$ is a basis.
+\end{prop}
+\begin{proof}
+    Assume there exists a linearly independent list of length \dim V that is not a basis.
+
+    That means that we are able to extend the list according to theorem 2 such that it is still linearly independent and not spanning. 
+
+    So now we have a linearly indpendent list of vectors of length $\dim V + 1$. where  $\dim V$ is the lenght of the basis (which is a spanning set)
+
+    However, this contradicts theorem 3 that states that the length of a linearly independent list is always smaller than or equal to the length of a spanning list. Hence our assumptino must be wrong and any liinearly independent lsit of length  $\dim V$ is a basis.
+\end{proof}
+
+\begin{prop}
+    Any spanning list of length $\dim V$ is a basis.
+\end{prop}
+\begin{proof}
+    Assume the contrary.
+
+    Using theorem 1 we can shrink the list and keep it spanning. 
+
+    But this contradicts theorem 3 as now we have a spanning set that is smaller than an linearly independnet list of vectors (the basis).
+
+    So our assumption must be wrong and any spanning list of length $\dim V$ is a basis.
+\end{proof}
+
+\begin{lemma}
+    Every subspace of a finite-dimentional vector space $V$ is a finite dimentional.
+\end{lemma}
+\begin{proof}
+    Consider any vector in our subspace, $u$. As this set is linearly in dependent we can keep extending this set and keep it linearly indpendent.
+
+    However we know that any linearly independent set is always smaller than or equal to the spanning set. 
+
+    This set exist is linearly independent in the bigger subspace as well. So we know there exist an upperbound for our linearly indpendent set.    
+
+    So we can keep adding a new vector, $u_k$ to our exisisting linearly indpendent list. However we know this process will terminate as there exists an upperbound which is the length of the spanning list in  $V$. Therefore  $U$ has to be finite-dimentional.
+\end{proof}
+
+\begin{lemma}
+    If $U$ is a subspace of  $V$ then,  $\dim U \leq \dim V$
+\end{lemma}
+\begin{proof}
+    Assume the contrary that $\dim U > \dim V$
+
+    Then we have a linearly independent set of vectors that span $U$. But we know that they are linearly indpendent in $V$ as well as  $U \subseteq V$. So this means that there exists a linearly independent set of vectors in  $V$ which is larger than the length of the spanning set ($\dim V$). But this contradicts theorem 3.
+
+    Hence our assumption must be wrong and  $\dim U \leq \dim V$
+\end{proof}
+
+\begin{lemma}
+    If $U$ is a subspace of $V$ and $\dim U = \dim V$, then  $U = V$
+\end{lemma}
+\begin{proof}
+    We can take a basis for $U$,  $u_1,u_2,\dots,u_n$  that spans $U$. Now these are also a linearly independent set of vectors in  $V$. So this means that these vectors span  $V$ as they are equal to  $\dim V$. So this means that every vector in  $V$ is a linearly combination of this span. Which implies that $U = V$
+
+    
+\end{proof}
+

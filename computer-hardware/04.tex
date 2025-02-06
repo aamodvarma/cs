@@ -1,0 +1,274 @@
+\setcounter{chapter}{10}
+\chapter{Intro to C Programming}
+
+
+\section{Translating High Level Language Programs}
+\subsection{Interpretation}
+
+
+A high level program is a set of "commands" for the interpreter program. The interpreter reads in the commands and carries them out as defined by the language. The interpreter is a virtual machine that executes the program in an isolated sandbox.
+
+\subsection{Compilation}
+With compilation the program is translated into machine code that can be directly executed on the hardware. A program can be compiled once and be executed many times. Languages like C, C++ are compiled.
+
+\subsection{Pros and Cons}
+With interpretation, developing and debugging are easier. Because it permits the execution one line at a time it is easier to examine intermediate results. However compiled code is quicker.
+
+
+\section{C /C++ Language}
+\subsection{Compilation Process}
+First an executable image is created. The compilation involves different components, 
+\begin{enumerate}
+    \item Preprocessor
+    \item Compiler
+    \item Linker
+\end{enumerate}
+
+\subsection{The Preprocessor}
+It scans through the source files looking for preprocessor directives (similar to pseudo-ops in LC-3). The directives help in transforming the source file. All preprocessor directives start with a $\#$ sign.
+
+For instance you can direct the preprocessor to substitute the character string "DAYS" with the string $30$ or direct it to insert the contents of stdio.h into the source file at that line.
+
+
+\begin{enumerate}
+    \item Define,
+\begin{verbatim}
+# define add(x,y) x + y
+
+int main() {
+    int x = 3 * add(2,1); # x will contain 3 * 2 + 1 = 7 not 3 * 3 = 9
+}
+\end{verbatim}
+\item \#if/\#else/\#endif - evaluates a constant expression at compile time; if it's 1, the code between \#if and \#endif but not in else is kept in the source code; if it's 0, the code between \#else and \#endif is kept.
+\end{enumerate}
+\subsection{The Compiler}
+After the preprocessor transforms the input source file, the compiler takes over. It compiler creates an object module (machine code for one section of the program). There are two parts,
+\begin{enumerate}
+    \item Analysis: The source program is broken down or parsed into its parts.
+    \item Synthesis: Machine code is generated (also tries to optimize if possible)
+\end{enumerate}
+
+The compiler uses the symbol table to translate the program (similar to the LC-3 assembler table)
+
+\subsection{The Linker}
+Links together all the object modules to form an executable of the program. Versing of the program that can be loaded into memory and executed by hardware.
+
+
+\section{Basic C program}
+\subsection{The Function main}
+Functions are similar to subroutines in LC-3. 
+\begin{itemize}
+    \item The "main" function serve a special purpose: where the execution of the program begins. 
+    \item Every C program requires a main function.
+    \item In ANSI C, main must return an integer value.
+\end{itemize}
+
+\subsection{The C Preprocessor}
+Two common directives, 
+\begin{enumerate}
+    \item \# define: Instructs the preprocessor to replace occurrences of any text that matches X with text Y. It helps in creating fixed values within a program.
+
+    For example the following,
+        \begin{verbatim}
+    #define STOP 0
+    for (counter = startPoint; counter >= STOP; counter--)
+        \end{verbatim}
+        is equivalent to, 
+        \begin{verbatim}
+    for (counter = startPoint; counter >= 0; counter--)
+        \end{verbatim}
+    \item \# include: It instructs the preprocessor to insert another source file into the code at the point $#$ include appears.
+
+    For instance, 
+    \begin{verbatim}
+    #include <stdio.h>
+    \end{verbatim}
+    defines some relevant information about the I/O functions in the library. The preprocessor directive is used to insert the header file before the compilation begins.
+
+    There are two variations of how it could be used, 
+    \begin{verbatim}
+    #include <stdio.h>
+    #include "program.h"
+    \end{verbatim}
+    \begin{enumerate}
+        \item The first variation uses angle branches and tells the preprocessor that the header file can be found in a predefined system directory. 
+        \item The second is used to include header files we create ourselves, the file should be found in the same directory.
+    \end{enumerate}
+
+    None of the directives end with a semicolon as they are not C statements but directives.
+
+
+    \subsection{Input and Output}
+
+    I/O is accomplished through a set of I/O functions. Similar to the IN and OUT trap routines by the LC-3 system software. It requires a format string that needs two things,
+
+    \subsubsection{printf}
+    \begin{enumerate}
+        \item Text to print out
+        \item  Specifications on how to print program values.
+    \end{enumerate}
+
+    For example, 
+    \begin{verbatim}
+    printf("%d is a prime number.", 43);
+    \end{verbatim}
+    prints out, 
+    \begin{verbatim}
+    43 is a prime number.
+    \end{verbatim}
+
+    Other variants are, 
+    \begin{verbatim}
+    printf("43 plus 59 in decimal is %d.", 43 + 59); # 102
+    printf("43 plus 59 in hexadecimal is %x.", 43 + 59); # 66
+    printf("43 plus 59 as a character is %c.", 43 + 59); # 'f'
+    \end{verbatim}
+                
+
+    The special sequence backslash n is used for a new line character,
+    \begin{verbatim}
+    printf("Hello\n")
+    printf("%d %d\n", counter, startPoint - counter);
+    \end{verbatim}
+
+    \subsubsection{scanf}
+    scanf can be used to input from the user. For instance, 
+
+    \begin{verbatim}
+    // Reads in a character and stores it in nextChar
+    scanf("%c", &nextChar);
+    // Reads in a floating point number into radius
+    scanf("%f", &radius);
+    // Reads two decimal numbers into length and width
+    scanf("%d %d", &length, &width);
+    \end{verbatim}
+\end{enumerate}
+
+
+\chapter{Variables and Operators}
+
+Variables hold the values upon which a program acts and operators are used to manipulate these values.
+
+\section{Variables}
+Most basic type of memory object
+\subsection{Basic Data types}
+\subsubsection{int}
+\begin{verbatim}
+    int echo;
+\end{verbatim}
+
+The representing and range of value of an int depend on the ISA of the underlying hardware. In LC-3 an int would be a 16 bit 2's complement integer and on a x86 system an int is likely to be a 32-bit 2's complement.
+
+\subsubsection{char}
+Declares a character. It stores the ASCII value of the character, 
+\begin{verbatim}
+    char lock;
+    char key = 'Q';
+\end{verbatim}
+char variables will occupy 16 bits on the LC-3.
+
+\subsubsection{float / double}
+Single-precision floating point number and double declares a double precision floating point number. 
+
+\begin{verbatim}
+    double twoPointOne = 2.1; // This is 2.1
+    double twoHundredTen = 2.1E2; // This is 210.0
+    double twoHundred = 2E2; // This is 200.0
+    double twoTenths = 2E-1; // This is 0.2
+    double minusTwoTenths = -2E-1; // This is -0.2
+    double extTemp = -0.2; // This is -0.2
+\end{verbatim}
+
+A double may have more bits for the fraction than a float but never fewer. Usually a double is 64 bits long and a float is 32 bits long.
+
+
+\subsubsection{bool}
+Takes on the values 0 or 1 to represent true or false. The specifier is "\_Bool"
+
+\begin{verbatim}
+    _Bool flag = 1; // Initialized to 1 or true
+    bool test = false; // Initialized to false, which is symbolically
+\end{verbatim}
+
+\subsection{Initialization of values}
+Local variables are initialized with garbage values. But global variables are initialized to 0.
+\begin{verbatim}
+    double width;
+    double pType = 9.44;
+    double mass = 6.34E2;
+    double verySmallAmount = 9.1094E-31;
+    double veryLargeAmount = 7.334553E102;
+    int average = 12;
+    int windChillIndex = -21;
+    int unknownValue;
+    int mysteryAmount;
+    bool flag = false;
+    char car = 'A'; // single quotes specify a single ASCII character
+    char number = '4'; // single quotes specify a single ASCII character
+\end{verbatim}
+
+\subsection{Bitwise Operator}
+\begin{enumerate}
+    \item \& is bitwise AND
+    \item | is bitwise OR
+    \item \^\ is bitwise XOR
+    \item \~\ is bitwise NOT
+    \item << is leftshift, vacated bit positions are filled with zeroes.
+    \item >> is rightshift, vacated bits are sign extended.
+\end{enumerate}
+\subsection{Logical Operator}
+Logical operators only generate integer values 1 or 0.
+\begin{enumerate}
+    \item \&\&: 3 \&\& 4 evaluates to 1 but 3 \&\& 0 will be 0
+    \item ||: 3 || 4 is 1 and 3 || 0 is 1 but 0 || 0 is 0
+    \item !: !x is 1 only if x = 0 else its always 0.
+\end{enumerate}
+
+\subsection{Increment-Decrement operators}
+\begin{verbatim}
+    x = 10 
+    y = x++ # y = 10, x = 11
+    z = ++x # z = 12, x = 12
+\end{verbatim}
+
+
+
+\section{Tying it Together}
+\subsection{Symbol Table}
+Symbols table entry for a variable contains, 
+\begin{enumerate}
+    \item Identifier
+    \item Type
+    \item Place in memory
+    \item Scope
+\end{enumerate}
+
+\subsection{Allocating Space for Variables}
+Two regions of mem in which variables in C are allocated storage.
+\begin{enumerate}
+    \item Global data section: global variables
+    \item Run-time stack: local variables
+\end{enumerate}
+
+A stack frame is a region of contiguous memory locations that contains all the local variables for a given function. When a function is executing the highest numbered memory address of its stack frame is stored in R5 - the frame pointer. The variables are allocated in the reverse of the order in which they are declared. So the first declared is the closest to R5 and the last declared would be on the top everything else.
+
+The first local variable is R5, next is R5 - 1 and so on. During execution, R4 points to beginning of global data section, R5 within the run-time stack, and R6 to the top of the run-time stack.
+
+
+\section{Additional Topics}
+\subsection{Variation of Basic Types}
+The modifiers long and short can be attached to int with the intent of extending or shortening the default size.
+
+Also use unsigned int where all bits are used to represent nonnegative numbers.
+
+\subsection{Literals, Constants and Symbolic Values}
+We can use const quantifier to declare a constant. They are read-only. Three types of constants,
+\begin{enumerate}
+    \item Literal constants - unnamed values that appear literally. For instance writing x = 2 * y. In this case 2 is a literal constant.
+    \item We can define constant values using the const qualifier. Eg. const int x = 10;
+    \item We can use \#define and do \#define RADIUS 15.0
+\end{enumerate}
+
+
+
+

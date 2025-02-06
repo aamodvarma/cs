@@ -1,0 +1,391 @@
+% --------- document setup ---------
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry} % small margins
+\setlength{\parskip}{0.75em} % larger jumps at end of paragraph
+\setlength{\parindent}{0pt} % no indent 
+\pagenumbering{gobble} % no page numbers
+
+% --------- packages ---------
+\usepackage{graphicx} % required for inserting images
+\graphicspath{ {~/Pictures/Screenshots/2024/} }
+\usepackage{multicol} % two column feature
+\usepackage{hyperref} % hyperlinks
+\usepackage{etoolbox} % if-then-else logic
+\usepackage{amsmath, amsfonts, amssymb, amsthm, mathrsfs} % math
+\usepackage{float} % figure env
+\usepackage{tikz} % drawing things
+\usetikzlibrary{automata, positioning}
+\usepackage{xcolor} % colors
+\usepackage[most]{tcolorbox} % answer boxes
+\usepackage{fancyhdr} % header
+\usepackage{fancyvrb} % fancy verbatim
+\usepackage{ifthen} % conditional statements
+\usepackage{lipsum} % filler text
+\usepackage{xstring} % For string manipulation
+\usepackage{enumitem} % for hint hanging indent
+\usepackage[ruled,vlined]{algorithm2e} % algorithms
+\renewcommand{\thealgocf}{} % removes algorithm numbers
+\DontPrintSemicolon  % removes algorithm semicolon
+
+% --------- color ---------
+\definecolor{answercolor}{RGB}{0, 0, 0} 
+\newcommand{\answercoloropacity}{5}
+% feel free to define your own color
+
+% --------- question + answer ---------
+%%begin novalidate
+\NewDocumentEnvironment{answer}{O{}}{
+    \begin{tcolorbox}[
+        colback=answercolor!\answercoloropacity, parbox=false, left=6pt, right=6pt, top=6pt, bottom=6pt, breakable, enhanced, colframe=black, frame hidden, borderline west={1.5pt}{0pt}{answercolor}
+    ]
+    \ifstrempty{#1}{}{\vspace{-6pt}\begin{multicols}{2}}
+}{
+    \ifstrempty{#1}{}{\end{multicols}}
+    \end{tcolorbox}
+}
+%%end novalidate
+\newcommand{\question}[3][Q]{
+\begin{description}
+\item \textbf{#1{#2}} #3
+\end{description}
+}
+\newcommand{\hint}[1]{{\footnotesize
+    \begin{description}
+    [leftmargin=3.3em,style=nextline]
+        \item[Hint:] {#1}
+    \end{description}}   
+}
+\newcommand{\displayname}{\ifthenelse{\equal{\collaborators}{}}{\studentName}{\studentName\ with\ \collaborators}}
+
+% --------- Header + Title ---------
+\fancypagestyle{firstpage}{\vspace{20pt}\lhead{\fontsize{12}{12}\selectfont\displayname}\rhead{\fontsize{12}{12}\selectfont CS 3511 : Merrick Furst}}
+
+\renewcommand\maketitle{
+\thispagestyle{firstpage}
+\begin{center}
+\fontsize{20}{0}\selectfont
+\assignmentTitle
+\end{center}
+\begin{center}
+$\begin{array}{l}\fbox{$\begin{array}{l}\textbf{Instructions: } \hfill \textbf{Due \dueOn} \\[0.5em] \bullet\ \text{Please type your solutions using LaTex or any other software.} \\ \hspace{1em} \text{Handwritten solutions will not be accepted.} \\[0.3em] \bullet\ \text{Please try to write concise responses.} \\[0.3em]  \bullet\ \text{You should not use pseudocode to describe your algorithms.} \\[0.3em] \bullet\ \text{Unless otherwise stated, saying $\log$ means base 2} \end{array}$} \end{array}$ \end{center}}
+
+% --------- Custom symbols ---------
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\N}{\mathbb{N}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\bigO}{\mathcal{O}}
+\newcommand{\Ptime}{\mathrm{P}}
+\newcommand{\NPtime}{\mathrm{NP}}
+\newcommand{\poly}{\text{poly}}
+\newcommand{\Alg}{\mathcal{A}}
+\newcommand{\Opt}{\operatorname{OPT}}
+\newcommand{\dx}{\ensuremath{\mathrm{d}x}}
+\begin{document}
+
+\newcommand{\assignmentTitle}{Homework 2: Loop Invariants, Modular Arithmetic, and Primality}
+\newcommand{\dueOn}{01/24/25 11:59pm}
+
+
+
+
+
+
+
+
+% --------- HOMEWORK STARTS BELOW ---------
+
+\newcommand{\studentName}{Your name}
+\newcommand{\collaborators}{any collaborators}
+
+\maketitle
+\newpage
+
+\question{1}{
+    Let $p$ be the polynomial defined by $p(x) = a_0 + a_1x + a_2x^2 + \cdots + a_nx^n$. Suppose we want to evaluate $p(x)$ for a given real number $x$
+    
+    \begin{algorithm}[H]
+    \caption{Polynomial Evaluation}
+    \SetKwProg{Fn}{EvaluatePolynomial}{:}{}
+    \Fn{\hspace{-0.3em}$(a_0, a_1, \ldots, a_n, x)$}{
+        $z := a_n$\;
+        $i := n$\;
+        \While{$i > 0$}{
+            $i := i - 1$\;
+            $z := z \cdot x + a_i$\;
+        }
+        \Return{$z$}
+    }
+    \end{algorithm}
+}
+
+\question[]{(a)}{
+    Briefly explain why the algorithm works (without using loop invariants).
+}
+
+\begin{answer}
+    % First we see that the algorithm is working backwards, ie. from $n$ to $1$. Now for any given power of  $x$ say $n$ we see that the value of $i$ while assigning $z$ is $n - 1$. So for all $x$ 
+
+    We have $z = zx + a_i$. We also have $z$ initialized as $a_n$. So we see that after the algorithm is over we have something like,  
+    $$ x(\dots x(x(xa_n + a_{n-1})+ a_{n-2}) + \dots) + a_0 $$ 
+
+    We see that for every $n$ term we multiply the term with $x,$ $n$ times giving us the term $a_n x^{n}$ in our final result. That is, for any given $i = n$ for all loop iterations $0 < i < n$. We're multiplying  $a_i$ with $x$, $n$ times as we're multiplying $z$ with $x$ in each of those iterations.
+\end{answer}
+
+
+\question[]{(b)}{
+    Show that $\displaystyle z = \sum_{j=i}^n a_j x^{j - i}$
+    is an invariant that the algorithm maintains.
+}
+
+\begin{answer}
+    First we check if the invariance is maintained before the loop begins. So we have, 
+    $$ z = a_n  = a_n x^{0} = \sum_{j=n}^{n} a_j x^{j - i}$$
+
+    Hence the invariance is maintained before the loop begins. Now we show by induction that if the invariance holds for any arbitrary $i = k$ then it must hold for $i = k - 1$.
+
+    So assume it holds for  $i = k$ so we have, 
+    $$ z = \sum_{j = k}^{n} a_j x^{j - k} $$ 
+
+    Now in the next iteration we have, 
+    \begin{align*}
+        z &= zx + a_i\\
+         &= x \sum_{j = k}^{n} a_j x^{j - k} + a_i\\
+         &= \sum_{j = k}^{n} a_jx^{j-k+1} + a_i\\
+         &= \sum_{j = k}^{n} a_jx^{j-(k-1)} + a_i\\
+         &= \sum_{j = k - 1}^{n} a_j x^{j - (k - 1)}
+    \end{align*}
+
+    Which is the invariant for when $i = k - 1$. 
+
+    Hence by induction as we established the base case for when $i = n$ we can conclude that it is true for all  $0 \le i < n$
+
+    So our invariance is also true after the loop for when $i = 0$
+
+\end{answer}
+
+\newpage 
+
+\question{2}{
+    Consider the following \textit{iterative} algorithm to compute $X^Y \bmod N$.
+    
+    \begin{algorithm}[H]
+    \caption{Modular Exponentiation}
+    \SetKwProg{Fn}{ModExp}{:}{}
+    \Fn{\hspace{-0.3em}$(X, Y, N)$}{
+        $x, y, z := X, Y, 1$\;
+        \While{$y \neq 0$}{
+            \If{$y$ is even}{
+                $x = x^2 \bmod N$\;
+                $y = \lfloor y/2 \rfloor$\;
+            }
+            \If{$y$ is odd}{
+                $z = x \cdot z \bmod N$\;
+                $y = y - 1$\;
+            }
+        }
+        \Return{$z$}
+    }
+    \end{algorithm}
+}
+
+\question[]{(a)}{
+    Identify a loop invariant for your algorithm and show that the algorithm maintains the invariant.
+    \hint{You must show the invariant is maintained before, during, and after the loop.}
+
+}
+
+\begin{answer}
+    The loop invariance for this algorithm is $X^{Y} \bmod N = z \cdot x^{y} \bmod N$ \\
+    Consider before the loop, we have $x,y,z =X,Y,1$. So,  
+    \begin{align*}
+        z \cdot x^{y}\bmod N =  X^{Y} \bmod N
+    \end{align*}
+    So our invariance is maintained.
+
+    Now consider within the loop. If $y$ is even we see that $z$ does not change. But we have, 
+    $$ x = x^2 \bmod N \text{ and } y = y /2 $$ 
+
+    After the update we have, 
+    $$ (x^2 \bmod N)^{y /2} \bmod N $$ 
+    We know because of the mod rules that this is equal to, 
+    $$ (x^2 \bmod N)^{y /2} \bmod N  = x^{y} \bmod N$$ 
+
+    This means our invariance is maintained.
+
+    Now if $y$ is odd we have, 
+    $$ z = x \cdot z \bmod N \text{ and } y = y - 1 $$ 
+
+    So before update we have, 
+    $$ X^{Y} \bmod N = z \cdot x^{y}\bmod N$$ 
+    We can rewrite $x^{y} = x x^{y - 1}$  such that, 
+    \begin{align*}
+        X^{Y} \bmod N &= z \cdot x x^{y - 1}\bmod N\\
+                      &= (z \cdot x \bmod N) (x^{y - 1} \bmod N)
+    \end{align*}
+
+    We see that our invariance holds after the update. So we've shown that in either case within the loop our in variance holds. 
+
+
+    Now consider after the loop. We have $y = 0$. So,  
+    $$ X^{Y} \bmod N = z \cdot x^{0} \bmod N  = z$$
+
+    So $z$ has the final solution which is what we want hence its maintained.
+    
+
+\end{answer}
+
+\question[]{(b)}{
+    Let $X$, $Y$, and $N$, be $n$-bit integers. What is the time and space complexity of this algorithm with respect to $n$?
+}
+
+
+\begin{answer}
+    First we see that we divide $y$ by 2 whenever its even so its complexity would be $O(\log(Y))$. However we know that $Y$ has $n$ bits such that $\log(Y) = n$ so we have  $O(n)$. Now we see that within each iteration of the loop we're performing multiplication and/or division. We know that these would have a complexity of $O(n\log n)$ if we use the optimized approach. Hence the total complexity with respect to the number of bits $n$ would be $O(n^2 \log(n))$ however if we use the direct approach we know the complexity would be $O(n^2)$ for multiplication and div ion. Hence it would be $O(n^{3})$
+
+    The algorithm uses $x,y,z$ to store the information which is updated in each iteration with no additional variables/space allocated. Hence the space complexity is $O(n)$
+\end{answer}
+
+
+\newpage 
+
+\textbf{Questions (3), (4), and (5) require you to read Chapter 1.3 of the textbook.}
+
+\question{3}{
+    Prove \textit{Fermat's Little Theorem.} If $p$ is prime, then for every $1 \le a < p$,
+    $$a^{p-1} \equiv 1 \pmod{p}$$
+
+    \hint{The proof is in the book, we just need you to restate it in your own words.}
+}
+\begin{answer}
+    First consider an arbitrary prime number $p$. Now let $S$ be the set of the natural numbers smaller than $p$ as follows, 
+    $$ S = \{1,2,\dots,p-1\} $$ 
+
+Now consider an arbitrary $a \in S$ and indices $i,j \in S$. We show that for any distinct choice of $i,j \in S, a\cdot i \bmod p$ is distinct from $a \cdot j \bmod p$. Essentially that for a given  $a$ the function $f(i) = a \cdot i \bmod p$ is bijective. The bisecting implies that the product modulo $p$ only reorders within the set $S$.
+
+Let us assume the numbers are not distinct which means that, 
+\begin{align*}
+    a \cdot i &\equiv a \cdot j \pmod p \\
+\end{align*}
+However because $a$ is coprime with $p$ we can divide both sides by $a$ to get, 
+$$  i \equiv j \pmod p $$ 
+$$ i -j = kp \text{ for some k}$$ 
+But we know that $i,j \in S$ which means that its smaller than $p$ so the only choice of $k$ is if its equal to 0. Hence we show that $i = j$ must be true then. This means that if $i \ne j$ then the function maps it to distinct elements in S.
+
+So now we have, 
+$$ S = \{1,2,\dots,p-1\} = \{a \cdot 1 \bmod p, \dots, a \cdot (p-1) \bmod p\} $$ 
+Multiplying the elements in each we have, 
+$$ (p-1)! \equiv a^{p-1}\cdot (p - 1)!  \pmod p $$ 
+
+However as $p$ is prime all $p' \in S$ are not factors of $p$ which means that $(p-1)!$  is relatively prime with $p$. Hence we can divide it from both sides to get, 
+$$ a^{p-1}\equiv 1  \pmod p $$ 
+
+
+
+\end{answer}
+\newpage
+
+\question{4}{
+    Consider the following algorithms: 
+
+    \begin{algorithm}[H]
+    \caption{Trial Division}
+    \SetKwProg{Fn}{PrimalityOne}{:}{}
+    \Fn{\hspace{-0.3em}$(N)$}{
+        \For{$i := 2, \ldots, \sqrt{N}$}{
+            \If{$N \equiv 0 \pmod{i}$}{
+                \Return{no}
+            }
+        }
+        \Return{yes}
+    }
+    \end{algorithm}
+    
+    \begin{algorithm}[H]
+    \caption{Randomized Primality Testing}
+    \SetKwProg{Fn}{PrimalityTwo}{:}{}
+    \Fn{\hspace{-0.3em}$(N)$}{
+        Pick positive integers $a_1, a_2, \ldots, a_k < N$ at random\;
+        \If{$a_i^{N-1} \equiv 1 \pmod{N}$ for all $i = 1, 2, \ldots, k$}{
+            \Return{yes}
+        }
+        \Else{
+            \Return{no}
+        }
+    }
+    \end{algorithm}
+}
+
+\question[]{(a)}{
+    If we want to have a maximum probability of error $\delta \in (0,1)$, how many positive integers $k$ should we choose for running \texttt{PrimalityTwo}? 
+}
+
+\begin{answer}
+    Assuming that $N$ is not a carmichael number, for a given $k$ the probability of error (the algo returns yes when $N$ is composite) is smaller than $\frac{1}{2^{k}}$. So choose an arbitrary $\delta \in (0,1)$. We need the error to be at most delta or,  
+    \begin{align*}
+        \frac{1}{2^{k}} &\le \delta\\
+        \frac{1}{\delta} &\le 2^{k}\\
+        \log \bigg(\frac{1}{\delta} \bigg ) \le k
+    \end{align*}
+    So for any $k \ge \log (\frac{1}{\delta}) $ will be enough numbers such that the probability that our algorithm fails is less than  $\delta$
+
+    However if $N$ is a carmichael number the probability of our random $a$ not being coprime is very low for large $N$ such that the probability of error is close to 1.
+\end{answer}
+
+
+\question[]{(b)}{
+    In one sentence, what is an advantage of using \texttt{PrimalityOne} over \texttt{PrimalityTwo}?
+}
+
+\begin{answer}
+    PrimalaityOne is a deterministic algorithm and the probability of error is 0, however PrimalityTwo is a probabilistic algorithm whose probability of error is dependent on the number of $a$ 's we choose.
+\end{answer}
+
+\question[]{(c)}{
+    In one sentence, what is an advantage of using \texttt{PrimalityTwo} over \texttt{PrimalityOne}?
+}
+
+\begin{answer}
+    PrimailtyTwo is much faster than PrimailtyOne as it relies on tests done on a small random subset of numbers with the probability of error exponentially decreasing, where as PrimailtiyOne checks if every number less than equal to $\sqrt{N}$ is a factor or not which takes significantly longer.
+\end{answer}
+
+\newpage
+\question{5}{
+    Use \texttt{PrimalityTwo} to determine whether the following numbers are prime or composite with a confidence of \textbf{at least 99\%}. Pick the first $k$ numbers from the following list as a source of randomness: 89, 167, 242, 351, 386, 456, 503, 622, 682, 741 (where $k$ is how much you need for 99\% confidence). 
+
+    You're allowed to use a calculator, and you can even write a program. Just show the result of each modulus calculation. If you decide to write a program, submit a screenshot of your code. 
+}
+\question[]{(a)}{
+    32767 
+}
+\begin{answer}
+    To get at least $99\%$ confidence we only require $7$ random numbers as for $\delta = 0.01$, 
+    $$ \frac{1}{2^{7}} = \frac{1}{128} = 0.0078125 < 0.01 = \delta $$ 
+    \begin{center}
+    \includegraphics[scale=.5]{Jan_26_Sun_12:57:27_EST.png}
+    \end{center}
+\end{answer}
+
+\question[]{(b)}{
+    743
+}
+\begin{answer}
+    To get at least $99\%$ confidence we only require $7$ random numbers as for $\delta = 0.01$, 
+    $$ \frac{1}{2^{7}} = \frac{1}{128} = 0.0078125 < 0.01 = \delta $$ 
+    \begin{center}
+    \includegraphics[scale=.5]{Jan_26_Sun_01:04:45_EST.png}
+    \end{center}
+
+\end{answer}
+\newpage
+\begin{center}
+    \textbf{Code}\\
+    \vspace{1em}
+    \includegraphics[scale=0.5]{Jan_26_Sun_01:06:50_EST.png}
+\end{center}
+\end{document}

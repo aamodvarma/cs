@@ -1,0 +1,126 @@
+\setcounter{chapter}{15}
+\chapter{Pointers and Arrays}
+A pointer is the address of a memory object. We can indirectly access variables/objects. With pointers we can create functions that modify the arguments passed by the caller. 
+
+An array is a list of data objects of the same type arranged sequentially in memory. 
+
+
+\section{Pointers}
+Arguments are always passed from caller to callee by value.
+\subsection{Declaring Pointer Variables}
+A pointer variables contains a bit pattern traded as an address of a memory object. A pointer is said to point to the variable whose address it contains. Eg.
+\begin{verbatim}
+    int *ptr;
+    char *cp;
+    double *dp;
+\end{verbatim}
+The variable named ptr points to an integer
+
+
+\subsection{Pointer Operators}
+\subsubsection{Address operator \&}
+$\&$ generates the memory address of it operand.
+\begin{verbatim}
+    int object;
+    int *ptr;
+
+    object = 4;
+    ptr = &object;
+\end{verbatim}
+
+Here ptr will point to the integer variable object. 
+
+\subsubsection{Indirection operator *}
+Used to dereference. We can indirectly manipulate the value of a memory object. If we have   Then *ptr refers to the value pointed to by the variable ptr.  
+
+\begin{verbatim}
+    int object;
+    int *ptr;
+
+    object = 4;
+    ptr = &object;
+    *ptr = *ptr + 1;
+\end{verbatim}
+The last statement is the same as writing object = object + 1;
+
+\subsection{Passing reference using pointers}
+\begin{verbatim}
+    void Swap(int *firstVal, int *secondVal){
+        int tempVal;
+
+        tempVal = *firstVal;
+        *firstVal = *secondVal;
+        *secondVal = tempVal;
+    }
+\end{verbatim}
+Now because we're passing a pointer, we're technically doing call by reference (the stack stores the address not the value). So now if we use * we can dereference and modify the value within that address.
+
+\subsection{Null Pointers}
+We can also have, pointer point to nothing,
+\begin{verbatim}
+    int *ptr = NULL;
+\end{verbatim}
+
+\section{Arrays}
+\subsection{Declaring and Using Arrays}
+\begin{verbatim}
+    int grid[10];
+\end{verbatim}
+This declares an array of 10 integers. So memory locations are allocated for grid[0] to grid[9].
+
+
+\subsection{Arrays as parameters}
+When an array is passed as a parameter we just pass the name, 
+\begin{verbatim}
+    int numbers[10];
+    mean = Average(numbers); # only name is passed
+\end{verbatim}
+
+In this case the type of "numbers" is similar to int * in that the name numbers is equivalent to \&numbers[0]. So numbers is a pointer to something of integer type. So the address of the array numbers is pushed onto the stack. 
+
+
+\subsection{Strings in C}
+Strings are sequences of characters. They are arrays of char.
+\begin{verbatim}
+    char word[10];
+\end{verbatim}
+declares an array that can contain a string up to 10 characters. However because we need the null terminator we will need to allocate 11 locations.
+
+We can print using \%s.
+\begin{verbatim}
+    char word[10] = "Hello";
+    printf("%s", word);
+\end{verbatim}
+
+To input a string we can use scanf,
+\begin{verbatim}
+    char word[10];
+    scanf("%s", word); # no need to use & beacuse word is an address
+    printf("This is entered: %s", word);
+\end{verbatim}
+
+
+\subsection{Relation between Arrays and Pointers in C}
+\begin{verbatim}
+    char word[10];
+    char *cptr;
+    cptr = word
+\end{verbatim}
+
+
+We can access the 4th character using, 
+\begin{verbatim}
+    word[3] or *(cptr + 3) or *(word + 3)
+\end{verbatim}
+
+
+\subsection{Common Pitfalls}
+C does not have protection against exceeding the size of an array. So an expression like a[i] can access a memory location beyond the end of the array.
+
+
+
+
+
+
+    
+
