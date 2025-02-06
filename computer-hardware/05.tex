@@ -1,0 +1,163 @@
+\chapter{Functions}
+
+\section{Implementation Functions in C}
+Four phases,
+\begin{enumerate}
+    \item Argument values from the caller are passed to callee
+    \item Control is transferred to the callee
+    \item The callee executes its task
+    \item Control is passed back to the caller with return value
+\end{enumerate}
+
+\subsection{Run-Time stack}
+A functions is just a sequence of instructions that is called during a JSR instruction. The RET instruction returns control back to the caller. 
+
+When a functions starts executing the local variables must be allocated somewhere in memory. There are two options,
+
+\textbf{Option 1: }The compiler could systematically assign places in memory for each function to place its local variables. Function A might be assigned memory starting at X while B might be assigned starting at Y. However this \textbf{doesn't} work if the function calls itself.
+
+\textbf{Option 2: }The space is allocated once the function starts executing. When the function returns to the caller the space is reclaimed and freed. If function calls itself it gets its own space somewhere else.
+
+In this method, each function has a memory template where it stores its local variables, bookkeeping information and its parameter variables. This template is called it stack frame or activation record. When function is called its stack frame will be allocated somewhere in memory. 
+
+
+\begin{enumerate}
+    \item R5: Frame pointer - points to the base of the local variables for the function.
+    \item R6: Stack pointer - points to the top of the stack
+\end{enumerate}
+
+\subsection{How it works}
+Four steps,
+\begin{enumerate}
+    \item Caller copies arguments for the callee onto the run-time stack and passes control to the callee.
+    \item Callee pushes space for local variables and other info onto the run-time stack, creating its stack frame on top of the stack.
+    \item Callee executes
+    \item Callee them removes its stack frame off the run-time stack and returns the return value and control to the caller. 
+\end{enumerate}
+
+
+\subsubsection{The Call}
+Consider, 
+\begin{verbatim}
+    w = Volt(w, 10);
+\end{verbatim}
+
+The compiler generate LC-3 code that does the following, 
+
+\begin{enumerate}
+    \item Transmits the value of the two arguments to the function Volt by pushing them onto the top of the run-time stack. R6 points to the top of the run-time stack (stack pointer). It contains the address of the memory location that is actively holding the topmost data item on the stack. To push we decrement R6 and then store the data value using R6 as the base address. The argument are pushed onto the stack from \textbf{right to left} in the order in which they appear. In our example first $10$ is pushed then $w$.
+    \item Transfers control to Volt via the JSR instruction.
+        \begin{verbatim}
+        AND R0, R0, #0 ; R0 <- 0
+        ADD R0, R0, #10 ; R0 <- 10
+        ADD R6, R6, #-1 ;
+        STR R0, R6, #0 ; Push 10 onto stack
+
+        LDR R0, R5, #0 ; Load w
+        ADD R6, R6, #-1 ;
+        STR R0, R6, #0 ; Push w
+
+        JSR Volt
+        \end{verbatim}
+\end{enumerate}
+
+
+\subsubsection{Starting the Callee Function}
+The instruction JSR points to is the first instruction in the callee. But first we need to set stage for Volt to execute.
+
+Right now the stack contains the two arguments for Volt at the top. We also need to prepare the stack such that it contains a spot for the \textbf{return value of Volt, return address of Watt, Watt's frame pointer, all local variables of Volt}
+
+
+\begin{enumerate}
+    \item Save space for callee return value. Immediately on top of the parameters for the callee. Written value is written onto this location later.
+    \item Push a copy of the return address in R7 onto the stack. R7 will hold the return address when JSR is used to initiate a subroutine call.
+    \item Push caller frame pointer in R5 onto the stack. So we'll be able to restore the stack frame of the caller so that it can easily resume execution after the function call  is complete.
+    \item Allocate space for callee local variables and adjust R5 to point to the base of the local variables and R6 to the top of the stack.
+
+\begin{verbatim}
+Volt:   ADD R6, R6, #-1 ; Allocate spot for the return value
+    
+        ADD R6, R6, #-1 ;
+        STR R7, R6, #0 ; Push R7 (Return address)
+        
+        ADD R6, R6, #-1 ;
+        STR R5, R6, #0 ; Push R5 (Caller's frame pointer)
+        
+        ADD R5, R6, #-1 ; Set frame pointer for Volt
+        ADD R6, R6, #-2 ; Allocate memory for Volt's local variable
+\end{verbatim}
+\end{enumerate}
+
+
+\subsubsection{Ending the Callee function}
+Once the callee has completed its work, we need to return to the caller. So tearing down the stack frame and restoring the run-time stack.
+
+\begin{enumerate}
+    \item If there is a return value, write it into the return value entry of the active stack frame.
+    \item Local variables for callee are popped off.
+    \item Caller frame pointer and return address are restored
+    \item Control to the caller function via the RET instruction.
+        \begin{verbatim}
+LDR R0, R5, #0 ; Load local variable k
+STR R0, R5, #3 ; Write it in return value slot, which will always ; be at 
+location R5 + 3
+
+ADD R6, R5, #1 ; Pop local variables
+
+LDR R5, R6, #0 ; Pop the frame pointer
+ADD R6, R6, #1 ;
+
+LDR R7, R6, #0 ; Pop the return address
+ADD R6, R6, #1 ;
+RET
+        \end{verbatim}
+\end{enumerate}
+
+
+\subsubsection{Returning to the Caller Function}
+After executing RET control is passed back to the caller. 
+\begin{enumerate}
+    \item Return value is popped off the stack.
+    \item Arguments are popped off the stack.
+\end{enumerate}
+\begin{verbatim}
+    JSR Volt
+    LDR R0, R6, #0 ; Load the return value
+    STR R0, R5, #0 ; w = Volt(w, 10);
+    ADD R6, R6, #1 ; Pop return value
+    
+    ADD R6, R6, #2 ; Pop arguments
+\end{verbatim}
+
+
+\subsubsection{Caller Save / Callee Save}
+\begin{itemize}
+    \item R0 to R3 can contain temporary values part of an ongoing computation. 
+    \item R4 to R7 are reserved. 
+        \begin{enumerate}
+            \item R4: pointer to the global data section
+            \item R5: frame pointer
+            \item R6: stack pointer
+            \item R7: return address
+        \end{enumerate}
+\end{itemize}
+
+
+
+\subsection{Summary}
+\begin{enumerate}
+    \item Caller pushes each argument onto stack and performs JSR to callee.
+    \item Callee allocates space for return value and saves frame pointer and return address.
+    \item Space is allocated for local variables.
+    \item Callee carries out its task.
+    \item Callee writes return value into space reserved.
+    \item Frame pointer and return value for caller is restored and returns to caller.
+    \item Caller pops the return value and arguments from stack and resumes.
+\end{enumerate}
+
+
+
+
+
+
+

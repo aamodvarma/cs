@@ -1,0 +1,8 @@
+*.toc
+*.fls
+*.dvi
+*.aux
+*.fdb_latexmk
+*.log
+*.gz
+./.env/
