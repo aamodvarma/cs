@@ -1,0 +1,269 @@
+% --------- document setup ---------
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry} % small margins
+\setlength{\parskip}{0.75em} % larger jumps at end of paragraph
+\setlength{\parindent}{0pt} % no indent 
+\pagenumbering{gobble} % no page numbers
+
+% --------- packages ---------
+\usepackage{graphicx} % required for inserting images
+\usepackage{multicol} % two column feature
+\usepackage{hyperref} % hyperlinks
+\usepackage{etoolbox} % if-then-else logic
+\usepackage{amsmath, amsfonts, amssymb, amsthm, mathrsfs} % math
+\usepackage{float} % figure env
+\usepackage{tikz} % drawing things
+\usetikzlibrary{automata, positioning}
+\usepackage{xcolor} % colors
+\usepackage{transparent} % transparency
+\usepackage[most]{tcolorbox} % answer boxes
+\usepackage{fancyhdr} % header
+\usepackage{fancyvrb} % fancy verbatim
+\usepackage{ifthen} % conditional statements
+\usepackage{lipsum} % filler text
+\usepackage{xstring} % For string manipulation
+\usepackage{enumitem} % for hint hanging indent
+\usepackage[ruled,vlined]{algorithm2e} % algorithms
+\renewcommand{\thealgocf}{} % removes algorithm numbers
+\DontPrintSemicolon  % removes algorithm semicolon
+
+% --------- color ---------
+\definecolor{answercolor}{RGB}{0, 0, 0} 
+\newcommand{\answercoloropacity}{5}
+% feel free to define your own color
+
+% --------- question + answer ---------
+%%begin novalidate
+\NewDocumentEnvironment{answer}{O{}}{
+    \begin{tcolorbox}[
+        colback=answercolor!\answercoloropacity, parbox=false, left=6pt, right=6pt, top=6pt, bottom=6pt, breakable, enhanced, colframe=black, frame hidden, borderline west={1.5pt}{0pt}{answercolor}
+    ]
+    \ifstrempty{#1}{}{\vspace{-6pt}\begin{multicols}{2}}
+}{
+    \ifstrempty{#1}{}{\end{multicols}}
+    \end{tcolorbox}
+}
+%%end novalidate
+\newcommand{\question}[3][Q]{
+\begin{description}
+\item \textbf{#1{#2}} #3
+\end{description}
+}
+\newcommand{\hint}[1]{{\footnotesize
+    \begin{description}
+    [leftmargin=3.3em,style=nextline]
+        \item[Hint:] {#1}
+    \end{description}}   
+}
+\newcommand{\note}[1]{{\footnotesize
+    \begin{description}
+    [leftmargin=3.4em,style=nextline]
+        \item[Note:] {#1}
+    \end{description}}   
+}
+\newcommand{\displayname}{\ifthenelse{\equal{\collaborators}{}}{\studentName}{\studentName\ with\ \collaborators}}
+% --------- Header + Title ---------
+\fancypagestyle{firstpage}{\vspace{20pt}\lhead{\fontsize{12}{12}\selectfont\displayname}\rhead{\fontsize{12}{12}\selectfont CS 3511 : Merrick Furst}}
+\renewcommand\maketitle{
+\thispagestyle{firstpage}
+\begin{center}
+\fontsize{20}{0}\selectfont
+\assignmentTitle
+\end{center}
+\begin{center}
+$\begin{array}{l}\fbox{$\begin{array}{l}\textbf{Instructions: } \hfill \textbf{Due \dueOn} \\[0.5em] \bullet\ \text{Please type your solutions using LaTeX or any other software.} \\ \hspace{1em} \text{Handwritten solutions will not be accepted.} \\[0.3em] \bullet\ \text{Please try to write concise responses.} \\[0.3em]  \bullet\ \text{You should not use only pseudocode to describe your algorithms.} \\[0.3em] \bullet\ \text{Unless otherwise stated, saying $\log$ means base 2.} \\[0.3em] \bullet\ \text{Comparisons and basic arithmetic (addition, subtraction, bit-shifting)} \\ \hspace{1em}\text{operations take $\bigO(1)$ time.} \end{array}$} \end{array}$ \end{center}}
+
+% --------- Custom symbols ---------
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\N}{\mathbb{N}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\bigO}{\mathcal{O}}
+\newcommand{\Ptime}{\mathrm{P}}
+\newcommand{\NPtime}{\mathrm{NP}}
+\newcommand{\poly}{\text{poly}}
+\newcommand{\Alg}{\mathcal{A}}
+\newcommand{\Opt}{\operatorname{OPT}}
+\newcommand{\dx}{\ensuremath{\mathrm{d}x}}
+\begin{document}
+
+\newcommand{\assignmentTitle}{Homework 5: Divide \& Conquer, Randomized Algorithms, and Fast Fourier Transform}
+\newcommand{\dueOn}{02/18/25 11:59pm}
+
+
+
+% --------- HOMEWORK STARTS BELOW ---------
+
+\newcommand{\studentName}{Your name}
+\newcommand{\collaborators}{any collaborators}
+
+\maketitle
+
+\newpage
+
+\question{1}{
+    A monkey currently has $b$ rotten bananas and seeks to get rid of as many rotten bananas as possible. There are $n$ baskets laid out in order and each basket has a multiplier that can be applied on the current amount of bananas the monkey has. For example, using a basket with a multiplier of 0.5 will halve the amount of rotten bananas the monkey has. These multipliers are stored in the array $M = [m_1, m_2, \dots, m_n]$. The monkey is allowed to start at some basket $i$ and end at some basket $j$, where $1 \le i \le j \le n$, applying multipliers to his bananas \textit{without} skipping any baskets. For example, given the multipliers $M = [3, 0.1, 0.2, 100, 0.75, 4, 0.1]$ and $b = 100$ bananas, the monkey's best course of action would be to start at position 2 and stop at position 3. The number of rotten bananas that the monkey would have remaining is then $100(0.1)(0.2) = 2$. 
+
+    You will design an efficient \textit{divide-and-conquer} algorithm that performs the following task:\\
+
+    \textbf{Input:} An amount of bananas $b > 0$, an array of multipliers $M = [m_1, m_2, \dots, m_n]$\\
+    \textbf{Output:} The maximum amount of bananas the monkey can get rid of. \\
+    \phantom{.}\hspace{4.2em}(doesn't have to be an integer)
+}
+
+\question[]{(a)}{
+    Describe your algorithm.
+    \note{Feel free to merge (a) and (b) if it's easier to explain that way.}
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(b)}{
+    Show the correctness of your algorithm.
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(c)}{
+    Provide a recurrence for your algorithm and use it to analyze the runtime.
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\newpage 
+\question{2}{ 
+    Suppose you are walking down a long road, whose length you don’t know in advance. Along the road are houses, which you would like to photograph with your very old camera. This old camera allows you to take as many pictures as you want, but only has enough memory to store one picture at a time. The street contains $n$ houses, but you don’t know $n$ before you reach the end of the street.
+
+    Your goal is to end up with one photo in your camera, where that photo is equally likely to show any of the $n$ houses. One algorithm for achieving this goal is to walk all the way down the street, counting houses, so that we can determine $n$. Then we roll an $n$-sided die, where $X$ denotes the roll outcome. Then we walk to the house numbered $X$ and take its picture. However, you’re a busy person and you don’t want to walk down the street again. Can you achieve your goal by walking up the street only once? 
+
+\question[]{(a)}{
+    Describe a randomized algorithm to solve this problem. 
+    
+    \hint{Your algorithm will involve replacing the current photo stored in memory with some probability as you walk (only once) down the street.}
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(b)}{
+    Prove that, for all $i$, $\P(\text{$i$-th item is output}) = 1\big/n$.
+}
+\begin{answer}
+    ...
+\end{answer}
+}
+
+\newpage
+\question{3}{
+    You're a chronic sports gambler and \textit{DraftDuels} releases a promotion regarding the Atlanta Falcons where you think you might win some money. If, throughout the duration of the season, every player on the Falcons roster wins ``Player of the Game'' for at least one game, you will win a \$100 cash prize. Otherwise, you win nothing. Let's say there's $n$ players on the football team, and each one of them has a $1/n$ chance of earning the ``Player of the Game'' title for any specific game. Prove that the expected number of games you would need in a season to win your \$100 bet is $\Theta(n\log(n))$.
+
+    \hint{Define $G_k = $ number of games to get $k$th unique player to win ``Player of the Game'' after $k-1$ different players have already won ``Player of the Game''. Then, let $G = \sum_k G_k$, and use linearity of expectation.}
+    
+}
+
+\begin{answer}
+    ...
+\end{answer}
+
+\newpage
+\question{4}{
+    We are given $n$ coins which each have their own probability of landing heads $c_1$,$c_2$, $\dots$, $c_n$. Now, we flip all the coins and record how many of them landed on heads. We are interested in analyzing the probability that exactly $k$ of the flips landed on heads. 
+    You will design an efficient \textit{divide-and-conquer} algorithm that performs the following task:\\
+    
+    \textbf{Input:} Coins with probabilities $\mathcal{C} = \{c_1, c_2, \dots, c_n\}$ of landing heads, and some integer $0 \le k \le n$\\
+    \textbf{Output:} The probability exactly $k$ coins landed heads
+}
+
+\question[]{(a)}{
+    Lets first try a simple case by hand. If there are 3 coins, with probabilities $c_1$, $c_2$, and $c_3$ of landing on heads, what is the probability that when we flip all of them exactly $2$ of them will be heads?
+    \note{Your answer should be written in terms of $c_1$, $c_2$, and $c_3$.}
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(b)}{
+    For each coin $c_i$, what is a polynomial function $p_i(x)$ such that when you compute $$p(x) = \prod_{i=1}^n p_i(x)$$
+    the coefficient of the $x^k$th term of $p(x)$ is the probability that exactly $k$ flips landed on heads?
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(c)}{
+    Use this to describe an algorithm to solve the problem. 
+}
+\begin{answer}
+    ...
+\end{answer}
+
+\question[]{(d)}{
+    Provide a recurrence for your algorithm and use it to analyze the runtime.
+
+    \hint{To solve the recurrence, It's easier to divide both sides by $n$ and to try analyzing $\frac{T(n)}{n}$.}
+}
+\begin{answer}
+    ...
+\end{answer}
+
+
+
+\newpage
+\question{5}{
+    The following is the Fast Fourier Transform algorithm as presented in the textbook. 
+}
+
+
+\setlength{\interspacetitleruled}{-.4pt}%
+\begin{algorithm}[H]
+\SetKwProg{Fn}{function}{:}{}
+\Fn{\text{\normalfont FFT}$(a, \omega)$}{
+    \textbf{Input:} An array $a = (a_0, a_1, \dots, a_{n-1})$, for $n$ a power of 2\;
+    \textbf{Input:} A primitive $n$th root of unity, $\omega$\;
+    \textbf{Output:} $M_n(\omega) a$\;
+    
+    \If{$\omega = 1$}{
+        \Return $a$\;
+    }
+    
+    $(s_0, s_1, \dots, s_{n/2-1}) \gets \text{FFT}((a_0, a_2, \dots, a_{n-2}), \omega^2)$\;
+    $(s'_0, s'_1, \dots, s'_{n/2-1}) \gets \text{FFT}((a_1, a_3, \dots, a_{n-1}), \omega^2)$\;
+    
+    \For{$j := 0$ \KwTo $n/2 - 1$}{
+        $r_j \gets s_j + \omega^j s'_j$\;
+        $r_{j+n/2} \gets s_j - \omega^j s'_j$\;
+    }
+    
+    \Return $(r_0, r_1, \dots, r_{n-1})$\;
+}
+\end{algorithm}
+
+
+\question[]{(a)}{
+    Provide a modification of the algorithm where $n$ is a power of 3, and explain why it works. 
+}
+
+    \hint{First figure out how to write a polynomial of degree $d$, where $d$ is a power of 3, as a linear combination of polynomials that are a function of $x^3$. Next, find a way to group \textit{triplets} of each root of unity instead of the \textit{pairs} that the algorithm from the book follows. Finally, provide a divide and conquer algorithm where each subproblem is inputted with the $(n/3)$rd roots of unity.}
+\begin{answer}
+    ...
+\end{answer}
+
+
+\question[]{(b)}{
+    Provide a recurrence for your algorithm and use it to analyze the runtime.
+}
+
+\begin{answer}
+    ...
+\end{answer}
+
+
+\end{document}

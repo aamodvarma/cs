@@ -1,0 +1,170 @@
+\chapter{Logic}
+We have, 
+\begin{enumerate}
+    \item Propositional Logic I
+    \item Propositional Logic II
+    \item First-order Logic
+\end{enumerate}
+
+
+\section{Knowledge}
+\begin{itemize}
+    \item Agents quire knowledge through perception, learning, language
+        \begin{itemize}
+            \item Knowledge of the effects of actions
+            \item Knowledge of how the world affects sensors
+            \item Knowledge of the current state world
+        \end{itemize}
+\end{itemize}
+
+Your knowledge base is the set of sentences in a formal language.
+
+\section{Logic}
+\textbf{Syntax: }  What sentences are allowed?\\
+\textbf{Semantics: } 
+\begin{itemize}
+    \item What are the possible worlds?
+    \item Which sentences are true in which worlds?
+\end{itemize}
+
+
+\begin{itemize}
+    \item Propositional Logic
+        \begin{itemize}
+            \item Syntax: $P \vee (\neg Q \wedge R);$ \quad  $x_1 \iff \text{Raining $\implies \neg$ Sunny}$ 
+            \item Possible worlds: $P,Q,R,S$ is true or false 
+            \item  Semantics: $\alpha \wedge \beta$ is true if both alpha and beta is true
+        \end{itemize}
+    \item First-order Logic
+        \begin{itemize}
+            \item Syntax: $\forall x \exists y P(x,y) \wedge \neg Q(\text{Joe}, f(x)) \implies f(x) = f(y)$
+        \end{itemize}
+\end{itemize}
+
+
+Other kinds of logic are, 
+\textbf{Relational databases:} 
+\begin{itemize}
+    \item Syntax: relational sentences, e.g. Sibiling(A, B)
+    \item Sentences: Every sentence in the DB are true, everything else is false
+        \begin{itemize}
+            \item SQL is some variant of first-order logic
+            \item Cannot express disjunction, implication, universals, etc
+        \end{itemize}
+\end{itemize}
+
+\section{Inference}
+\subsection{Entailment}
+\textbf{Entailment: } $\alpha \models \beta$ means that  $\alpha$ entails $\beta$ or $\beta$ follows from $\alpha$ iff in any world where  $\alpha$ is true, $\beta$ is also true or that, 
+$$ models(\alpha) \subseteq models(\beta) $$ 
+
+For instance if, 
+$$ \alpha_1 \text{ is } \neg Q \wedge R \text{ and } \alpha_2 \text{ is } \neg Q$$ 
+Then we know that, 
+$$ \alpha_1 \models \alpha_2 $$ 
+    
+\subsection{Proofs}
+A proof is a demonstrating of entailment between $\alpha$ and $\beta$. 
+
+\textbf{Sound}  algorithm: Everything it claims to prove is entailed
+
+\textbf{Complete} algorithm: Everything that is entailed can be proved
+
+\begin{enumerate}
+    \item Method 1: Model checking
+        \begin{itemize}
+            \item For every possible world, if $\alpha$ is true make sure that $\beta$ is true too.
+            \item Works for propositional logic (finite many worlds), not easy for first-order logic (because of quantifiers)
+        \end{itemize}
+    \item Method 2: Theorem Proving
+        \begin{itemize}
+            \item Search for a sequence of proof steps that lead from $\alpha $ to  $\beta$
+            \item E.g.   $P \wedge (P \implies Q)$ we can infer  $Q$  by Modus Ponens
+        \end{itemize}
+\end{enumerate}
+
+\section{Propositional logic syntax}
+ Given a set of proposition symbold $\{X_1,\dots,X_n\}$
+ \begin{itemize}
+     \item $X_i$ is a sentence
+     \item If $\alpha$ is a sentence then $\neg \alpha$ is a sentence
+     \item If $\alpha$ and $\beta$ are sentences then $\alpha \wedge \beta, \alpha \vee \beta, \alpha \implies \beta, \alpha \iff \beta$ are sentences.
+     \item There are no other sentences 
+ \end{itemize}
+
+ \begin{itemize}
+     \item Prop logic has limited expressive power
+     \item We can't generate all the sentences by hand - let the code generate it
+     \item In first order logic we need $O(1)$ transition model sentences
+ \end{itemize}
+
+
+ \section{Entails vs Implies}
+ \textbf{Entails: }  $\alpha \models \beta$
+
+ \textbf{Implies}  $\alpha \implies \beta$ 
+
+ KB is a set of sentences then,
+ \begin{itemize}
+     \item If $\alpha \implies \beta \in \text{KB}$ then  $\alpha \wedge \text{KB} \models \beta$ (modus ponens)
+ \end{itemize}
+
+
+ \section{Reasoning tasks}
+ \begin{itemize}
+     \item Localization with a map and local sensing
+         \begin{itemize}
+             \item Given an initial KB, plus a sequence of percepts and actions where am I?
+         \end{itemize}
+     \item Mapping with a location sensor
+         \begin{itemize}
+             \item Given an initial KB, plus a sequence of percepts  and actions what is the map?
+         \end{itemize}
+ \end{itemize}
+
+
+ \section{Summary}
+ \begin{itemize}
+     \item One possible agent architecture: knowledge + inference
+     \item Logics provide a formal way to encode knowledge
+     \item A simple KB for pacman covers the initial state, sensor model, and transition model
+ \end{itemize}
+
+
+\section{Decision Networks}
+
+
+\section{Value of Perfect Information}
+The value of perfect information is, 
+$$ VPI(E'|e) = MEU(e,E') - MEU(e) $$ 
+
+Here $MEU(e)$ is the maximum expected utility given the current evidence $e$ or,
+$$ MEU(e) = \mathop{max}_a \sum_s P(s|e) U(s,a) $$ 
+
+Essentially it is the maximum of the expected utility given the initial evidence. For instance consider we want to decide where to drill a oil rig, we have at location 1 ($a_1$) or at location 2 ($a_2$). In this case $e$ would reprint the initial evidence. Say we don't have any evidence other than the probability that the oil has fifty percent chance of being in either  we could compute the maximum expected utility as, 
+
+\begin{align*}
+    \mathop{EU(a_1)} &= P(s_1)U(s_1,a_1) + P(s_2)U(s_2,a_1) = .5 \times k + .5 \times 0 = .5k\\
+    \mathop{EU(a_2)} &= P(s_1)U(s_1,a_2) + P(s_2)U(s_2,a_2) = .5 \times  0 + .5 \times  k = .5k\\
+    MEU &= max( \mathop{EU(a_1)}, \mathop{EU(a_2)}) = .5k
+\end{align*}
+
+
+
+$MEU(e, E')$ is the max utility given the current evidence  $e$ and new set of evidence $E'$ of which let $e'$ be a specific piece of evidence so,
+$$ MEU(e, e') = \mathop{max}_{a} \sum_s P(s |e,e') U(s,a) $$ 
+
+and, 
+$$ MEU(e, E') = \sum_{e'} P(e'|e)MEU(e,e')$$
+
+Lets assume our only piece of new evidence in this is where the actual oil rig and let that be $e'$ so we need now $MEU(e,e') = MEU(e,E')$. We need, 
+$$ EU(a_1 | e,e') = P(s_1 | e,e')U(s_1,a) + P(s_2 | e,e')U(s_2,a) $$ 
+In this case if $a_1$ is we drill in oil rig 1. Consider our new evidence tell us that the oil rig is actually in the first location then we have $P(s_1 | e,e') = 1$ and $U(s_1,a_1) = k$ we get, 
+$$ EU(a_1 | e,e') = k $$  and 
+$$ EU(a_2 | e,e') = 0 $$ 
+
+So our, 
+$$ MEU(e,E') =k $$ 
+
+And hence our, 
+$$ VPI(E'|e) = k - k /2 = k /2 $$ 

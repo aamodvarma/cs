@@ -1,0 +1,57 @@
+\chapter{Utilities}
+Utilities are functions from outcomes to real numbers that describe an agent's preferences.
+\begin{itemize}
+    \item In a game, may be simple (+1/-1)
+    \item Summarize the agent's goals
+    \item Theorem: any "rational" preference can be summarized as a utility function
+\end{itemize}
+We hard-wire utilities and let behaviors emerge
+ 
+
+\section{Maximum Expected Utility }
+\begin{itemize}
+    \item A rational agent should choose the action that maximize its expected utility, given its knowledge.
+    \item For average case expectimax reasoning, we need magnitudes to be meaningful
+\end{itemize}
+
+
+\section{Preferences}
+An Agent must have preferences among:
+\begin{itemize}
+    \item Prices: A, B, etc
+    \item Lotteries: situations with uncertain prizes $L = [p,A; (1 - p),B$
+\end{itemize}
+
+\subsection{Rational Preferences}
+We want some  constraints on preferences before we call them rational eg, 
+$$ \text{Axiom of Transitivity: } (A > B) \wedge (B > C) \implies (A > C) $$ 
+
+There are costs to irrationality. An agent with intransitive preferences can be induced to give away all its money
+
+Axioms of rationality, 
+\begin{enumerate}
+    \item Orderability:  $(A > B) \vee (B > A) \vee (A \sim B)$
+    \item Transitivity  $(A > B) \vee (B > C) \vee (A > C)$
+    \item Continuity  $(A > B > C) \implies \exists p[p, A; 1 - p, C] \sim B$
+    \item Substitutability  $(A \sim B) \implies [p,A; 1 - p, C] \sim [p, B, 1 - p, C]$
+    \item Monotonicity  $(A > B) \implies (p \ge q) \iff [p, A; 1 - p, B ] >^{\sim} [q, A; 1 - q, B]$
+\end{enumerate}
+
+
+\section{Utilities of Sequences}
+What preferences should an agent have over prize sequences?
+
+More or less? $[1,2,2]$ or  $[2,3,4]$
+
+Now or later? $[0,0,1]$ or  $[1,0,0]$ 
+
+
+\subsection{Stationary preferences}
+If we assume stationary preferences, 
+$$ [a_1,a_2,\dots] > [b_1,b_2,\dots] \iff [c,a_1,a_2,\dots] > [c, b_1, b_2 ,\dots] $$ 
+
+Additive discounted utility:
+$$ U([r_0,r_1,r_2,\dots]) = r_0 + \gamma r_1 + \gamma^2 r_2 + \dots $$ 
+where $\gamma \in (0,1]$ is the discount factor
+
+

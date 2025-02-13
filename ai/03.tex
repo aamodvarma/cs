@@ -17,3 +17,142 @@ Given a game tree, the optimal strategy can be determined from the \textbf{minim
 \subsection{Minimax algorithm}
 Computes the minimax decision from the current state. Uses recursive computation of the minimax values of each successor. Time complexity is $O^{b^{m}}$ as it does depth first search to identify value for all possible paths.
 
+In terms of efficiency it is like DFS with time complexity of $O(b^{m})$ and space complexity of $O(bm)$.
+
+\subsection{Alpha-Beta Pruning}
+In the general case we are pruning children of the MIN node. We compute the MIN value at some node $n$ and loop over $n$'s children. We keep track of MAX's best value ($\alpha$) so far from any choice  point along the current path from the root. If $n$ becomes worse than MAX's best then we can prune  $n's$ other children as we know  $n$ wont be played anyways.
+
+\vspace{1em}
+
+Similarly we keep track of MIN's best value ($\beta$) so far from any choice along the current path from the root. If $n's$ children are worse (greater than $\beta$) then we don't need to explore its children because we know we won't explore $n$ anyways.
+
+\vspace{1em}
+
+\begin{itemize}
+    \item The pruning has \textbf{no effect} on minimax value computed for the root. 
+    \item Values of intermediate nodes might be wrong
+        \begin{itemize}
+            \item Children of the root may have the wrong value
+            \item Can't do any action selection
+        \end{itemize}
+    \item Good child ordering improves effectiveness of pruning
+    \item With perfect ordering
+        \begin{itemize}
+            \item Time complexity becomes $O(b^{m /2})$
+            \item Doubles solvable depth
+        \end{itemize}
+\end{itemize}
+
+
+\subsection{Evaluation Functions}
+Score non-terminals in depth-limited search. The ideal functino returns the actual minimax value of the position. However in depth limited we don't have access to the leaves. So it's  typically weighted sum of features, eg. num white queens - num black queens
+
+
+
+\subsection{Expectimax Search}
+Instead of worse-case outcomes we want values to reflect the average-case.
+
+\textbf{Expectimax serach} computes average score under optimal play.
+\begin{itemize}
+    \item Max nodes as in minimax search
+    \item Chance nodes are like min nodes but the outcome is uncertain
+    \item Calculate their expected utilities - take weighted average of children.
+\end{itemize}
+
+So the max value calculation is the same, but instead of min value calculation we use our expected value using probabilities based on the actual value returned. 
+
+\vspace{1em}
+
+If your opponent is running depth 2 minimax, using the result 80\% of the time and moving randomly otherwise we use \textbf{Expectimax}.
+
+
+\subsection{Multi-Agent Utilities}
+
+If we have multiple players or don't have a zero-sum game. Then we have, 
+
+\begin{itemize}
+    \item Terminals have \textbf{utility tuples} 
+    \item Node values are tuples as well
+    \item Each player maximize its own component in the tuple
+\end{itemize}
+
+
+\subsection{Monte Carlo Tree Search}
+Methods that are based on alpha-beta search assume a fixed horizon. Combines two ideas,
+\begin{itemize}
+    \item Evaluation by rollouts - play multiple games to termination from a state s and count wins and losses.
+    \item Selective search - explore parts of tree that will help improve the decision at root, regardless of depth.
+\end{itemize}
+\subsubsection{Rollouts}
+For each rollout we, 
+\begin{itemize}
+    \item Repeat until terminal - play a move according to a fast policy
+    \item Record the result
+\end{itemize}
+
+The fraction of wins correlate with the true value of the position.
+
+\subsubsection{MCTS 0}
+\begin{itemize}
+    \item Do N rollouts from each child of the root, record fraction of wins
+    \item Pick the move that gives best outcome by this metric 
+\end{itemize}
+
+\subsubsection{MCTS 0.9}
+\begin{itemize}
+    \item Allocate rollouts to more promising nodes.
+\end{itemize}
+
+\subsubsection{MCTS 1}
+\begin{itemize}
+    \item Allocate rollouts to more promising nodes.
+    \item Allocate rollouts to more uncertain nodes.
+\end{itemize}
+
+\subsubsection{UCB (Upper Confidence Bound) heuristic}
+
+
+$$ UCB(n) = \frac{U(n)}{N(n)} + C \times \sqrt{\log N \frac{PARENT(n)}{N(n)}} $$ 
+
+Where, 
+\begin{itemize}
+    \item $N(n) = $ number of rollouts from node  $n$
+    \item  $U(n) = $ total utility of rollouts (e.g. \# wins)
+\end{itemize}
+
+\subsection{MCTS 2}
+Repeat until out of time,
+\begin{itemize}
+    \item Given current tree, apply UCB to choose a path down to a leaf node $n$
+    \item Add a new child $c$ to $n$ and run a rollout from $c$
+    \item Update the win counts from  $c$ back up to the root 
+\end{itemize}
+Choose the action leading to the child with the highest $N$
+
+\subsection{No min or max}
+\begin{itemize}
+    \item Value of a node $U(n) /N(n)$ is a weighted sum of child values.
+    \item as  $N \rightarrow \infty$, the vast majority of rollouts are concentrated in the best children. So the weighted average is essentialy the  $max / min$ 
+    \item As $N \rightarrow \infty$ UCT selects the minimax move.
+\end{itemize}
+
+\subsection{MCTS + ML}
+\begin{itemize}
+    \item MCTS can be paired with rollout policies that are neural networks with reinforcement learning and expert human moves.
+    \item Also have a trained value function to better predict node's utility.
+\end{itemize}
+
+
+
+\subsection{Summary}
+\begin{itemize}
+    \item When games require decisions when optimally is impossible, 
+        \begin{itemize}
+            \item Bounded-depth search and approximate evaluation functions.
+        \end{itemize}
+    \item Games force efficient use of computation
+        \begin{itemize}
+            \item Alpha-beta pruning, MCTS
+        \end{itemize}
+\end{itemize}
+

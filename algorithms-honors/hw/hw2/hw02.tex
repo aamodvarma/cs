@@ -248,7 +248,7 @@ $\begin{array}{l}\fbox{$\begin{array}{l}\textbf{Instructions: } \hfill \textbf{D
 \begin{answer}
     First we see that we divide $y$ by 2 whenever its even so its complexity would be $O(\log(Y))$. However we know that $Y$ has $n$ bits such that $\log(Y) = n$ so we have  $O(n)$. Now we see that within each iteration of the loop we're performing multiplication and/or division. We know that these would have a complexity of $O(n\log n)$ if we use the optimized approach. Hence the total complexity with respect to the number of bits $n$ would be $O(n^2 \log(n))$ however if we use the direct approach we know the complexity would be $O(n^2)$ for multiplication and div ion. Hence it would be $O(n^{3})$
 
-    The algorithm uses $x,y,z$ to store the information which is updated in each iteration with no additional variables/space allocated. Hence the space complexity is $O(n)$
+    The algorithm uses $x,y,z,N$ to store the information. We see that $N$ is constant but $x,y,z$ are updated in each iteration. In every iteration we do not create new instances of these variables but we see we use the previous value to update the current value of these variables. So no new space is created because of a new iteration. Because of this the space complexity would be dpeendent only on the size of the variables themselves. We know that this these integers are  n-bit integers. Hence as we only store a constant number of $n$ bit integers we have a space complexity of $O(n)$
 \end{answer}
 
 
