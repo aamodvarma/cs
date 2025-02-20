@@ -333,10 +333,12 @@ $$ x^{ed} \equiv x \mod q \implies q | x^{ed} - x $$
 
 \textcolor{red}{
     If $x^{ed} - x = a$ we now have $p | a$ and  $q | a$ such that  $p$ and $q$ are coprime. We know that  for any divisors of $a$ the LCM of those divisors will also divide  $a$ in our case as  $p$  and $q$ are coprime we have  $LCM(p,q) = pq = N$  which means that we have,  
-    $$ N | a \text{ or that } N | x^{ed} - x \text{ or that } x^{ed} - x \equiv 0 \mod N $$ 
+    $$ N | a \text{ or that } N | x^{ed} - x \text{ or that } x^{ed} - x \equiv 0 \mod N$$ 
 }
-So we have, 
 
+
+
+Because $N$ has two distinct prime factors only we can say that, 
 $$ x^{ed} - x \equiv 0 \mod N \implies x^{ed} \equiv x \mod N$$ 
 
 
@@ -548,7 +550,7 @@ Let's say for example that $p = 31,  q = 59, \text{ and } e = 7.$ Find the value
     \url{https://nickpapciak.github.io/close-pairs-visualizer/}.}
 }
 \begin{answer}
-    We create a recursive algorithm and start with the case of $n$. The algorithm calls itself to generate points for the case for $n /2$ and using the results of that it generates $n /2$ more points for each of the generated $n /2$ points. We also keep track of the unit vector angles that we used to distance each point (this angle will be relative to the origin. So for instance if after the first point at the origin we generated the next point at ($\sqrt{2},\sqrt{2}$) then we store $\pi /4$) we also make sure this list is sorted \textcolor{red}{(Essentially we're storing all the angles we've placed points so that the new points we place will not be in the same angle. We can store these angles by adding to a min or max heap.)}. Now for each of the $n /2$ points we create another point that is of distance of unit 1. To determine where to place these points \textcolor{red}{we'll take the two smallest elements from our heap which will take $\log n$ time and then we'll find the angle between those two. As these two are the smallest angles the angle bnetwen them will be unique as if it was already in the heap then it would be the 2nd smallest and would be chosen}. Now relative to each $n /2$ points we place another point at this angle relative to the positive x-axis. This ensures that there will be no overlap.
+We create a recursive algorithm and start with the case of $n$. The algorithm calls itself to generate points for the case for $n /2$ and using the results of that it generates $n /2$ more points for each of the generated $n /2$ points. We also keep track of the unit vector angles that we used to distance each point (this angle will be relative to the origin. So for instance if after the first point at the origin we generated the next point at ($\sqrt{2},\sqrt{2}$) then we store $\pi /4$) we also make sure this list is sorted. Now for each of the $n /2$ points we create another point that is of distance of unit 1. To determine where to place these points we first find the pair of angle with the largest gap and find the angle right in between them. Now relative to each $n /2$ points we place another point at this angle relative to the positive x-axis. This ensures that there will be no overlap.
 
 \end{answer}
 
@@ -569,11 +571,7 @@ Let's say for example that $p = 31,  q = 59, \text{ and } e = 7.$ Find the value
     \end{align*}
 }
 \textcolor{red}{
-    As we are halving $n$ the depth is $\log_2(n)$ so as we unroll our recurrence we have 
-    \begin{align*}
-        C(n) &= n /2 + n /2 + \dots  \text{ $\log n$ times }\\
-             &= \frac{n}{2} \log n
-    \end{align*}
+    As we are halving $n$ the depth is $\log_2(n)$ so as we unroll our recurrenve we have $$\frac{n}{2} \log_2(n) = \frac{n}{2} \log_2(n)$$
 }
 
 which is the number of close points.
@@ -587,8 +585,7 @@ which is the number of close points.
     Our recurrence for the algorithm is, 
     $$ T(n) = T(n /2) + O(n) $$ 
     \textcolor{red}{
-        Here we are subdividing our problem by 2 to get $T(n /2)$ and we also have  $n$ work to create the $n$ new points. To find the 2 smallest and add to our heap we just need $O(\log n)$ which would be $O(n)$. So using the master theorem we have, $d = 1$ and  $a = 1, b = 2$. We see that  $log_2{1}  = 0 < 1$ or that $log_b{a} < d$ this means that our complexity is,
-        $$ T(n) = O(n) $$ 
+    Here we are subdividing our problem by 2 to get $T(n /2)$ and we also have  $n$ work to create the $n$ new points. To find the 2 smallest and add to our heap we just need $O(\log n)$. So using the master theorem we have,  $O(n)$ as  our depth is  $2^{\log_2()}$
 }
 \end{answer}
 
