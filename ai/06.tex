@@ -1,0 +1,152 @@
+\chapter{Markov Decision Processes}
+
+Say we're working with a maze like problem - a grid for instance. Movements are noisy, so we have a probability that a specific action leads you to a specific place. For instance the action North might only take you North 80\% of the time. At each step the agent receives a reward, reward can be negative. The big rewards come at the end. The overall goal is to maximize the sum of rewards.
+
+
+\section{Introduction}
+An MDP is defined by, 
+\begin{enumerate}
+    \item Set of states $s \in S$
+    \item Set of actions  $a \in A$
+    \item A transition function  $T(s, a, s')$ - the dynamics
+        \begin{itemize}
+            \item Probability that action $a$ from $s$ leads to $s'$.
+        \end{itemize}
+    \item A reward function $R(s, a, s')$ (sometimes $R(s)$ or  $R(s')$)
+    \item  A start state and maybe a terminal state
+\end{enumerate}
+
+
+One way to solve it is using expectimax search.
+
+
+\section{Markov}
+Means that given the present, the future and past are independent. So essentially our action outcomes only dependent on the current state, so we have, 
+$$ P(S_{t + 1} = s' | (S_t = s_t, A_t = a_t), (S_{t - 1} = S_{t - 1}, A_{t - 1} = a_{t - 1}), \dots, S_0 = s_0) $$ 
+$$ = $$ 
+$$ P(S_{t + 1} = s'| S_t = s_t , A_t = a_t) $$ 
+
+So only the current state matters and not the history.
+
+\section{Policy}
+A policy $\pi$ gives an action for each state. So an optimal policy is one that maximizes the expected utility if followed. Expectimax for instance did not compute entire policies, it computed the action for a single search only.
+
+\section{Discounting}
+It's reasonable to maximize the sum of rewards. But in some cases we prefer rewards now to rewards later. We can exponentially decay the value of later rewards. 
+
+\vspace{1em}
+
+Each time we descend a level, we multiply in the discount once. For instance we have, 
+$$ U([a,b,c]) = a + \gamma b + \gamma^2 c $$ 
+
+Discounting also helps in convergence as in some cases we can get infinite rewards. Some other solutions are, 
+\begin{itemize}
+    \item Finite horizon: Terminate after fixed $T$ steps.
+    \item Discounting: use $0 < \gamma < 1$
+    \item Absorbing state: guarantee that for every policy, a terminal state will eventually be reached.
+\end{itemize}       
+
+
+
+\section{Optimal Qualities}
+\begin{enumerate}
+    \item Value utility of a state (s): $V(s)=$ expected utility starting in  $s$ and acting optimally.
+    \item Value utility of a q-state (s, a): $Q(s,a)=$ expected utility starting out having taken action  $a$ from state $s$ and acting optimally.
+    \item Optimal policy: $\pi(s) = $ optimal action from state  $s$
+\end{enumerate}
+
+\section{Bellman Equations}
+The recursive definition of value is, 
+\begin{align*}
+    V(s) &= max_a Q(s, a)\\
+    Q(s, a) &= \sum_{s'} T(s, a, s') [R(s, a, s') + \gamma V(s')]\\
+    V(s) &= max_a \sum_{s'} T(s, a, s') [R(s, a, s') + \gamma V(s')]
+\end{align*}
+
+Essentially $V$ is the max q value across all the actions we can take and the  q-value of a state given an acting is summing the quantity $T(s,a,s')[R(s, a, s') + \gamma V(s')]$ across all reachable states given that action (for instance given action North we might have $T_N=0.8, T_S = 0.1, T_E=0.1, T_W=0$)
+
+
+\section{Value Iteration}
+We start with all $V_0(s) = 0$ at time step $0$. And for each  $s$ we do, 
+$$ V_{k + 1} (s) = max_a \sum_{s'} T(s, a, s') [ R(s, a, s') + \gamma V_k(s')] $$ 
+
+We repeat this until convergence (until the max change is smaller than our change margin). The complexity of this would be, 
+$$ O(S^2A) $$ 
+
+\section{Policy Evaluation}
+In value iteration we max over all the possible actions from a given state. But in policy evaluation we use the optimal policy (fixed policy) and calculate our q-value like that. So we have, 
+$$ V^{\pi}(s) = \sum_{s'}T(s, \pi(s), s')[R(s, \pi(s), s') + \gamma V^{\pi} (s')] $$ 
+here $V^{\pi}(s) =$ expected total discounted rewards starting in $s$ and following $\pi$.
+
+We can use the bellman equations into updates (like value iteration), 
+\begin{align*}
+    V_0^{\pi}(s) &= 0\\
+    V_{k + 1}^{\pi}(s) &= \sum_{s'}T(s, \pi(s), s') [R(s, \pi(s), s') + \gamma V_k^{\pi}(s')]
+\end{align*}
+
+Efficieny is $O(S^2)$ per iteration. Because we don't have the maxes, our equations are just a linear system that we can solve.
+
+
+\section{Policy extraction}
+To extract the optimal policies after finding the optimal values we just need to find the action that maximizes the q-values the state given the action, so we have, 
+
+$$ \pi(s) = \text{arg max}_a \sum_{s'} T(s, a, s') [ R(s, a, s') + \gamma V(s')] $$ 
+So if we have the optimal q-values for each state it goes down to being,  
+$$ \pi(s) = \text{arg max}_a Q(s, a)$$
+
+
+\section{Problems with value iteration}
+It repeats the bellman updates so we have the following issues, 
+\begin{enumerate}
+    \item Slow - $O(S^2A)$ per iteration
+    \item Arg max at each state rarely changes
+    \item Policy often converges long before the values
+\end{enumerate}
+\section{Policy Iteration}
+
+Policy iteration helps solve some of these issues, 
+\begin{itemize}
+    \item Policy evaluation: calculates utilities for some fixed policies (not optimal utilities).
+    \item Policy improvement: We update the policy using one-step look-ahead with resulting converges utilities as future values. 
+    \item We repeat until policy converges
+\end{itemize}
+
+
+It is optimal and can converge much faster in some conditions.
+
+We have the following, 
+\begin{itemize}
+    \item Evaluation: For some fixed current policy $\pi$, find values with policy evaluation, 
+        $$ V_{k + 1}^{\pi_i}(s) = \sum_{s'} T(s, \pi_i(s), s')[ R(s, \pi_i(s), s') + \gamma V_k^{\pi_i}(s')] $$ 
+    \item Improvement: For fixed values, get better policy using policy extraction,
+        $$ \pi_{i + 1}(s) = \text{arg max}_a \sum_{s'} T(s, a, s') [R(s, a, s') + \gamma V^{\pi_i}(s')] $$ 
+\end{itemize}
+
+
+\section{Comparison}
+Both compute the same thing (all optimal values) but, 
+
+\vspace{1em}
+
+In value iteration, 
+\begin{itemize}
+    \item Every iteration updates both the values and implicit the policy.
+    \item We don't track the policy, but taking the max over actions basically recomputes it.
+\end{itemize}
+
+In policy iteration, 
+\begin{itemize}
+    \item We do several passes that update utilities with fixed policy (fast because we only consider 1 action)
+    \item After evaluation, we choose new policy (slow because we need to find arg max)
+\end{itemize}
+
+
+\section{Summary}
+We have, 
+\begin{enumerate}
+    \item Compute optimal values: Use value iteration of policy iteration 
+    \item Compute values for a particular policy: Use policy evaluation
+    \item Turn values into policy: Use policy extraction
+\end{enumerate}
+
+All these are variations of the bellman updates that use one step look ahead expect max fragments.
